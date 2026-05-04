@@ -1,0 +1,52 @@
+<section class="card">
+
+  <!-- 🤖 RECOMENDADOS -->
+  <h2 class="titulo">🤖 Recomendado para ti</h2>
+
+  <div class="grid-cursos">
+    @for (curso of cursosRecomendados(); track curso.id) {
+      <div class="curso-card">
+        <h3>{{ curso.titulo }}</h3>
+        <p>{{ curso.descripcion }}</p>
+
+        <p><strong>Nivel:</strong> {{ curso.nivel }}</p>
+
+        <button (click)="inscribirme(curso.id)">
+          Inscribirme
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="separador"></div>
+
+  <!-- 📚 TODOS LOS CURSOS -->
+  <h2 class="titulo">📚 Todos los cursos</h2>
+
+  @if (error) {
+    <div class="alerta-error">{{ error }}</div>
+  }
+
+  <div class="grid-cursos">
+    @for (curso of cursos; track curso.id) {
+      <div class="curso-card">
+        <h3>{{ curso.titulo }}</h3>
+        <p>{{ curso.descripcion }}</p>
+
+        <p><strong>Nivel:</strong> {{ curso.nivel }}</p>
+        <p><strong>Precio:</strong> {{ curso.precio_referencia }}</p>
+
+        @if (estaInscrito(curso.id)) {
+          <button disabled>
+            Ya inscrito ✅
+          </button>
+        } @else {
+          <button (click)="inscribirme(curso.id)">
+            Inscribirme
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+</section>

@@ -1,0 +1,39 @@
+<section class="card">
+  <h2 class="titulo">Panel principal</h2>
+
+  @if (usuario) {
+
+    <h3>🎓 Mis cursos</h3>
+
+    @for (curso of misCursos(); track curso.id) {
+      <div class="curso-card">
+        <h4>{{ curso.titulo }}</h4>
+
+        <p>Progreso: {{ progresoCurso(curso.id) }}%</p>
+
+        <div class="barra-contenedor">
+          <div class="barra-progreso" [style.width.%]="progresoCurso(curso.id)"></div>
+        </div>
+
+        @if (progresoCurso(curso.id) === 100) {
+          <div class="alerta-ok">
+            🏆 Curso completado
+          </div>
+
+          <button (click)="generarCertificado(curso)">
+            Generar certificado PDF
+          </button>
+        }
+
+        @for (leccion of leccionesDelCurso(curso.id); track leccion.id) {
+          <div class="leccion-item">
+            <p>{{ leccion.titulo }}</p>
+            <button (click)="marcarLeccion(leccion.id)">
+              Completar
+            </button>
+          </div>
+        }
+      </div>
+    }
+  }
+</section>

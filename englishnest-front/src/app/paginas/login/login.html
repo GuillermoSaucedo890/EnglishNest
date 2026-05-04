@@ -1,0 +1,91 @@
+<section class="auth-layout">
+  <div class="panel panel-login">
+    <div class="panel-header">
+      <div class="icono-circulo"></div>
+      <h2>Log in</h2>
+    </div>
+
+    @if (mensajeLogin) {
+      <div class="alerta-ok">{{ mensajeLogin }}</div>
+    }
+
+    @if (errorLogin) {
+      <div class="alerta-error">{{ errorLogin }}</div>
+    }
+
+    <form class="formulario" [formGroup]="formularioLogin" (ngSubmit)="enviarLogin()">
+      <div class="campo">
+        <input type="email" formControlName="email" placeholder="Correo electrónico">
+      </div>
+
+      <div class="campo">
+        <input type="password" formControlName="password" placeholder="Contraseña">
+      </div>
+
+      <button class="btn btn-login" type="submit">Entrar</button>
+    </form>
+  </div>
+
+  <div class="panel panel-registro">
+    <div class="panel-header">
+      <div class="icono-circulo icono-outline"></div>
+      <h2>{{ modoRegistro === 'estudiante' ? 'Registro de estudiante' : 'Registro de docente' }}</h2>
+    </div>
+
+    @if (mensajeRegistro) {
+      <div class="alerta-ok">{{ mensajeRegistro }}</div>
+    }
+
+    @if (errorRegistro) {
+      <div class="alerta-error">{{ errorRegistro }}</div>
+    }
+
+    <form class="formulario" [formGroup]="formularioRegistro" (ngSubmit)="enviarRegistro()">
+      <div class="campo">
+        <input type="text" formControlName="nombres" placeholder="Nombres completos">
+      </div>
+
+      <div class="campo">
+        <input type="text" formControlName="apellidos" placeholder="Apellidos">
+      </div>
+
+      <div class="campo">
+        <input type="email" formControlName="email" placeholder="Correo electrónico">
+      </div>
+
+      <div class="campo">
+        <input type="password" formControlName="password" placeholder="Contraseña">
+      </div>
+
+      <div class="campo">
+        <input type="password" formControlName="password_confirmation" placeholder="Confirmar contraseña">
+      </div>
+
+      <div class="extras-docente" [class.extras-docente-visible]="modoRegistro === 'docente'">
+        <div class="extras-contenido">
+          <div class="campo">
+            <input type="text" formControlName="especialidad" placeholder="Especialidad">
+          </div>
+
+          <div class="campo">
+            <textarea rows="4" formControlName="estudios" placeholder="Estudios"></textarea>
+          </div>
+
+          <div class="campo">
+            <textarea rows="4" formControlName="biografia" placeholder="Biografía"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-register" type="submit">
+        {{ modoRegistro === 'estudiante' ? 'Crear cuenta' : 'Enviar solicitud' }}
+      </button>
+
+      <div class="toggle-box">
+        <button class="btn btn-toggle" type="button" (click)="cambiarModoRegistro()">
+          {{ modoRegistro === 'estudiante' ? 'Registrarme como docente' : 'Volver a estudiante' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

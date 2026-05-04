@@ -1,0 +1,83 @@
+.mis-cursos-page {
+  padding: 30px;
+}
+
+.mis-cursos-header {
+  background: white;
+  border-radius: 24px;
+  padding: 35px;
+  margin-bottom: 28px;
+  border: 1px solid #dce6f3;
+}
+
+.mis-cursos-header h1 {
+  font-size: 38px;
+  margin: 0 0 10px;
+  color: #111827;
+}
+
+.mis-cursos-header p {
+  color: #64748b;
+  font-size: 18px;
+}
+
+.cursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+.curso-card {
+  background: white;
+  border-radius: 22px;
+  padding: 26px;
+  border: 1px solid #dce6f3;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+.curso-icono {
+  width: 52px;
+  height: 52px;
+  background: #dbeafe;
+  color: #2563eb;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  margin-bottom: 18px;
+}
+
+.curso-card h2 {
+  font-size: 23px;
+  color: #111827;
+}
+
+.curso-card p {
+  color: #475569;
+  line-height: 1.5;
+}
+
+.btn,
+.vacio a {
+  display: inline-block;
+  margin-top: 18px;
+  background: #2563eb;
+  color: white;
+  text-decoration: none;
+  padding: 13px 20px;
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+.vacio {
+  background: white;
+  padding: 35px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.error {
+  color: #dc2626;
+  font-weight: 700;
+}

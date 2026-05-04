@@ -1,0 +1,96 @@
+<section class="curso-detalle">
+
+  <div class="tabs">
+    <button class="activo">Curso</button>
+    <button>Participantes</button>
+    <button>Calificaciones</button>
+    <button>Competencias</button>
+  </div>
+
+  <div class="curso-header">
+    <div class="curso-imagen">EN</div>
+
+    <h1>Inglés Técnico para Desarrollo de Software</h1>
+    <h2>EnglishNest Academy</h2>
+
+    <div class="presentacion">
+      <h3>Desarrollo de plataforma de cursos en línea con suscripciones y pagos automatizados</h3>
+      <div class="banner"></div>
+
+      <p>
+        <strong>Problema de contexto:</strong>
+        Una academia de capacitación tecnológica gestiona sus cursos con hojas de cálculo y correos electrónicos,
+        generando demoras en activación de suscripciones, errores de acceso y falta de reportes confiables.
+      </p>
+
+      <p>
+        <strong>Docente:</strong> EnglishNest Team
+      </p>
+    </div>
+  </div>
+
+  <div class="criterios">
+    <h3>Criterios</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Peso</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>20%</td>
+          <td>Diseña una base de datos siguiendo un modelo relacional.</td>
+        </tr>
+        <tr>
+          <td>40%</td>
+          <td>Desarrolla un sistema de información aplicando buenas prácticas.</td>
+        </tr>
+        <tr>
+          <td>40%</td>
+          <td>Diseña e implementa reportes según los requerimientos del usuario.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modulos">
+
+    <div class="modulo" *ngFor="let modulo of modulos">
+
+      <div class="modulo-titulo" (click)="toggleModulo(modulo)">
+        <span>{{ modulo.titulo }}</span>
+        <span>{{ modulo.abierto ? '⌃' : '⌄' }}</span>
+      </div>
+
+      <p class="modulo-descripcion" *ngIf="modulo.descripcion && modulo.abierto">
+        {{ modulo.descripcion }}
+      </p>
+
+      <div class="contenido-lista" *ngIf="modulo.abierto">
+
+        <div class="contenido-item" *ngFor="let contenido of modulo.contenidos">
+
+          <div class="estado">✓</div>
+
+          <div class="icono">
+            {{ icono(contenido.tipo) }}
+          </div>
+
+          <div>
+            <small>{{ contenido.subtitulo }}</small>
+            <h4>{{ contenido.titulo }}</h4>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>

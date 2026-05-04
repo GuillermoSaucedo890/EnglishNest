@@ -1,0 +1,21 @@
+<section class="card">
+  <h2 class="titulo">🤖 Tutor IA</h2>
+  <p class="subtitulo">Haz preguntas sobre cursos, progreso o inglés técnico</p>
+
+  <div class="chat-box">
+    @for (msg of chat; track $index) {
+      <div [class]="msg.tipo === 'user' ? 'msg user' : 'msg ia'">
+        {{ msg.texto }}
+      </div>
+    }
+  </div>
+
+  <div class="input-area">
+    <input
+      [(ngModel)]="mensaje"
+      placeholder="Ej: quiero aprender backend..."
+      (keyup.enter)="enviar()"
+    />
+    <button (click)="enviar()">Enviar</button>
+  </div>
+</section>

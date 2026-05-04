@@ -1,0 +1,39 @@
+.grid-cursos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.curso-card {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  transition: 0.2s;
+}
+
+.curso-card:hover {
+  transform: translateY(-4px);
+}
+
+.curso-card h3 {
+  margin: 0 0 10px;
+}
+
+button {
+  margin-top: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  color: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+}

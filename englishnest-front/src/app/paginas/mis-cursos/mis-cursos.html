@@ -1,0 +1,47 @@
+<section class="mis-cursos-page">
+
+  <div class="mis-cursos-header">
+    <h1>📚 Mis cursos</h1>
+    <p>Aquí aparecen los cursos en los que ya estás inscrito.</p>
+  </div>
+
+  <p *ngIf="cargando">Cargando tus cursos...</p>
+
+  <p *ngIf="error" class="error">
+    {{ error }}
+  </p>
+
+  <div *ngIf="!cargando && !error && inscripciones.length === 0" class="vacio">
+    <h2>No tienes cursos inscritos todavía</h2>
+    <a routerLink="/cursos">Ver cursos disponibles</a>
+  </div>
+
+  <div class="cursos-grid" *ngIf="!cargando && inscripciones.length > 0">
+
+    <div class="curso-card" *ngFor="let item of inscripciones">
+
+      <div class="curso-icono">EN</div>
+
+      <h2>{{ item.curso?.titulo }}</h2>
+
+      <p>
+        {{ item.curso?.descripcion }}
+      </p>
+
+      <p>
+        <strong>Nivel:</strong> {{ item.curso?.nivel }}
+      </p>
+
+      <p>
+        <strong>Estado:</strong> {{ item.estado }}
+      </p>
+
+      <a class="btn" [routerLink]="['/curso-detalle', item.curso?.id]">
+        Entrar al curso
+      </a>
+
+    </div>
+
+  </div>
+
+</section>

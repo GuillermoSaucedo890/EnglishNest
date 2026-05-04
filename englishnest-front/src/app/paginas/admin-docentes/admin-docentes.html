@@ -1,0 +1,36 @@
+<section class="card">
+  <h2 class="titulo">Docentes pendientes</h2>
+
+  @if (mensaje) {
+    <div class="alerta-ok">{{ mensaje }}</div>
+  }
+
+  @if (error) {
+    <div class="alerta-error">{{ error }}</div>
+  }
+
+  @if (docentes.length === 0) {
+    <div class="card">
+      No hay docentes pendientes por aprobar.
+    </div>
+  }
+
+  @if (docentes.length > 0) {
+    <div class="docente-lista">
+      @for (docente of docentes; track docente.id) {
+        <div class="docente-item">
+          <p><strong>Nombre:</strong> {{ docente.nombres }} {{ docente.apellidos }}</p>
+          <p><strong>Correo:</strong> {{ docente.email }}</p>
+          <p><strong>Especialidad:</strong> {{ docente.perfil_docente?.especialidad || 'No definida' }}</p>
+          <p><strong>Estudios:</strong> {{ docente.perfil_docente?.estudios }}</p>
+          <p><strong>Biografía:</strong> {{ docente.perfil_docente?.biografia || 'No registrada' }}</p>
+          <p><strong>Estado:</strong> {{ docente.perfil_docente?.estado_aprobacion }}</p>
+
+          <button class="btn-primary" (click)="aprobar(docente.id)">
+            Aprobar docente
+          </button>
+        </div>
+      }
+    </div>
+  }
+</section>

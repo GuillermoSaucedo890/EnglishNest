@@ -1,0 +1,50 @@
+<div class="layout">
+  <header class="topbar">
+    <div class="brand">
+      <h1>EnglishNest</h1>
+      <p>Plataforma de cursos</p>
+    </div>
+
+    <nav class="menu">
+      <a routerLink="/panel" routerLinkActive="activo">Inicio</a>
+      <a routerLink="/cursos" routerLinkActive="activo">Cursos</a>
+      <a routerLink="/mis-cursos">Mis cursos</a>
+      <a routerLink="/planes" routerLinkActive="activo">Planes</a> <!-- 🔥 ESTE -->
+      <a routerLink="/ia" routerLinkActive="activo">Tutor IA</a>
+    </nav>
+
+    @if (!estaAutenticado()) {
+      <a class="btn-link" routerLink="/login">Acceso</a>
+    }
+
+    @if (estaAutenticado()) {
+      <div class="perfil-wrap">
+        <button class="perfil-btn" (click)="toggleMenu()">
+          {{ iniciales() }}
+        </button>
+
+        @if (menuAbierto) {
+          <div class="perfil-menu">
+            <div class="perfil-head">
+              <strong>{{ usuario?.nombres }} {{ usuario?.apellidos }}</strong>
+              <span>{{ usuario?.email }}</span>
+            </div>
+
+            <div class="perfil-info">
+              <p><strong>Rol:</strong> {{ usuario?.rol }}</p>
+              <p><strong>Estado:</strong> {{ usuario?.estado }}</p>
+            </div>
+
+            <button class="menu-item danger" (click)="cerrarSesion()">
+              Cerrar sesión
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </header>
+
+  <main class="contenido">
+    <router-outlet></router-outlet>
+  </main>
+</div>

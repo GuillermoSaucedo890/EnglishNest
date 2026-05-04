@@ -1,0 +1,17 @@
+<section class="card">
+  <h2 class="titulo">Verifica tu correo</h2>
+
+  @if (mensaje) {
+    <div class="alerta-ok">{{ mensaje }}</div>
+  }
+
+  @if (error) {
+    <div class="alerta-error">{{ error }}</div>
+  }
+
+  <p class="subtitulo">
+    Si no te llegó el mensaje, puedes reenviarlo desde aquí.
+  </p>
+
+  <button class="btn-secondary" (click)="reenviar()">Reenviar correo</button>
+</section>

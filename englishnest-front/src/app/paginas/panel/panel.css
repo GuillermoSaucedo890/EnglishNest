@@ -1,0 +1,106 @@
+.card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  margin-bottom: 22px;
+}
+
+.titulo {
+  font-size: 32px;
+  margin-bottom: 18px;
+}
+
+.alerta-ok {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+  padding: 14px 18px;
+  border-radius: 16px;
+  margin-bottom: 18px;
+}
+
+.alerta-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 14px 18px;
+  border-radius: 16px;
+  margin-bottom: 18px;
+}
+
+.separador {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 28px 0;
+}
+
+h3 {
+  font-size: 26px;
+  margin-bottom: 18px;
+}
+
+h4 {
+  font-size: 21px;
+  margin-bottom: 10px;
+  color: #111827;
+}
+
+p {
+  font-size: 16px;
+  color: #1f2937;
+}
+
+button {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  color: white;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+  transition: 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
+}
+
+button:disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.barra-contenedor {
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  height: 18px;
+  margin: 10px 0 18px;
+}
+
+.barra-progreso {
+  height: 18px;
+  background: linear-gradient(135deg, #22c55e, #3b82f6);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.curso-card {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 22px;
+  margin-top: 14px;
+}
+
+.leccion-item {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 14px;
+  margin-top: 10px;
+}

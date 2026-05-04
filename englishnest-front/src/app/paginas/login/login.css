@@ -1,0 +1,195 @@
+:host {
+  display: block;
+}
+
+.auth-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (min-width: 980px) {
+  .auth-layout {
+    grid-template-columns: 0.9fr 1.1fr;
+  }
+}
+
+.panel {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e5e7eb;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: -20px;
+  right: -20px;
+  height: 120px;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.35), transparent 26%),
+    radial-gradient(circle at 40% 50%, rgba(217, 70, 239, 0.32), transparent 24%),
+    radial-gradient(circle at 60% 50%, rgba(59, 130, 246, 0.26), transparent 24%),
+    radial-gradient(circle at 80% 50%, rgba(125, 211, 252, 0.25), transparent 26%);
+  pointer-events: none;
+}
+
+.panel-login {
+  min-height: 520px;
+}
+
+.panel-registro {
+  min-height: 620px;
+}
+
+.panel-header {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.panel-header h2 {
+  margin: 10px 0 0;
+  font-size: 30px;
+  color: #1e3a8a;
+}
+
+.icono-circulo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  color: white;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
+}
+
+.icono-outline {
+  background: white;
+  color: #2563eb;
+  border: 2px solid #60a5fa;
+  box-shadow: none;
+}
+
+.formulario {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.campo input,
+.campo textarea {
+  width: 100%;
+  border: none;
+  background: #eef4ff;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 15px;
+  color: #0f172a;
+  outline: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.campo input::placeholder,
+.campo textarea::placeholder {
+  color: #7c8aa5;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+  background: #f8fbff;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 13px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-login,
+.btn-register {
+  color: white;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+}
+
+.btn-toggle {
+  background: transparent;
+  color: #2563eb;
+  border: 2px solid #bfdbfe;
+}
+
+.toggle-box {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.alerta-ok,
+.alerta-error {
+  position: relative;
+  z-index: 1;
+  padding: 12px 14px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.alerta-ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.alerta-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.extras-docente {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(-10px);
+  transition:
+    max-height 0.45s ease,
+    opacity 0.3s ease,
+    transform 0.35s ease,
+    margin-top 0.35s ease;
+  margin-top: 0;
+}
+
+.extras-docente-visible {
+  max-height: 420px;
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: 4px;
+}
+
+.extras-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 6px;
+}

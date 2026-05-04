@@ -1,0 +1,113 @@
+<section class="planes-page">
+
+  <div class="planes-header">
+    <h1>💎 Planes</h1>
+    <p>Elige tu plan, selecciona método de pago y activa tus beneficios.</p>
+  </div>
+
+  <!-- LOADING -->
+  <p *ngIf="cargando">Cargando planes...</p>
+
+  <!-- ERROR -->
+  <p *ngIf="error" class="error">
+    {{ error }}
+  </p>
+
+  <!-- PLANES -->
+  <div class="planes-grid" *ngIf="!cargando && !error">
+
+    <div class="plan-card" *ngFor="let plan of planes">
+
+      <h2>{{ plan.nombre }}</h2>
+
+      <p class="descripcion">
+        {{ plan.descripcion }}
+      </p>
+
+      <p class="precio">
+        {{ plan.precio }} Bs
+      </p>
+
+      <ul>
+        <li>Duración: {{ plan.duracion_dias }} días</li>
+
+        <li *ngIf="plan.acceso_total == 1">
+          Acceso total a cursos
+        </li>
+
+        <li *ngIf="plan.acceso_total == 0">
+          {{ plan.limite_cursos_mes }} cursos al mes
+        </li>
+
+        <li *ngIf="plan.soporte_24_7 == 1">
+          Soporte 24/7
+        </li>
+
+        <li *ngIf="plan.es_prueba == 1">
+          Plan de prueba
+        </li>
+      </ul>
+
+      <!-- 🔥 BOTÓN INTELIGENTE -->
+      <button
+        (click)="elegirPlan(plan)"
+        [disabled]="planAdquiridoId === plan.id"
+        [class.adquirido]="planAdquiridoId === plan.id">
+
+        {{ planAdquiridoId === plan.id ? 'Plan adquirido' : 'Elegir plan' }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- 🔥 MODAL DE PAGO -->
+  <div class="modal" *ngIf="mostrarPago">
+
+    <div class="modal-content">
+
+      <button class="cerrar" (click)="cerrarModal()">✕</button>
+
+      <h2>Método de pago</h2>
+
+      <p>
+        Plan seleccionado:
+        <strong>{{ planSeleccionado?.nombre }}</strong>
+      </p>
+
+      <p class="precio-modal">
+        {{ planSeleccionado?.precio }} Bs
+      </p>
+
+      <div class="metodos">
+
+        <button
+          [class.activo]="metodoPago === 'Tarjeta'"
+          (click)="seleccionarMetodo('Tarjeta')">
+          💳 Tarjeta
+        </button>
+
+        <button
+          [class.activo]="metodoPago === 'QR'"
+          (click)="seleccionarMetodo('QR')">
+          📱 QR
+        </button>
+
+        <button
+          [class.activo]="metodoPago === 'Efectivo'"
+          (click)="seleccionarMetodo('Efectivo')">
+          💵 Efectivo
+        </button>
+
+      </div>
+
+      <button class="confirmar" (click)="confirmarPago()">
+        Confirmar pago
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
