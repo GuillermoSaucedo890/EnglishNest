@@ -1,0 +1,38 @@
+<h1>Registro de estudiante</h1>
+
+@if (mensaje) {
+  <div class="alerta-ok">{{ mensaje }}</div>
+}
+
+@if (error) {
+  <div class="alerta-error">{{ error }}</div>
+}
+
+<form (ngSubmit)="enviar()" [formGroup]="formulario">
+  <div class="campo">
+    <label>Nombres</label>
+    <input type="text" formControlName="nombres">
+  </div>
+
+  <div class="campo">
+    <label>Apellidos</label>
+    <input type="text" formControlName="apellidos">
+  </div>
+
+  <div class="campo">
+    <label>Correo electrónico</label>
+    <input type="email" formControlName="email">
+  </div>
+
+  <div class="campo">
+    <label>Contraseña</label>
+    <input type="password" formControlName="password">
+  </div>
+
+  <div class="campo">
+    <label>Confirmar contraseña</label>
+    <input type="password" formControlName="password_confirmation">
+  </div>
+
+  <button class="boton" type="submit">Registrarme como estudiante</button>
+</form>

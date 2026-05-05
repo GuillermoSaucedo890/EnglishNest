@@ -1,0 +1,90 @@
+<section class="verificar-page">
+  <div class="verificar-card">
+
+    <div class="icono-wrapper" [class.ok]="estado === 'verificado'">
+      @if (estado === 'verificado') {
+        <span>✅</span>
+      } @else {
+        <span>📧</span>
+      }
+    </div>
+
+    <div class="contenido-texto">
+      <span class="mini-badge">
+        {{ estado === 'verificado' ? 'Cuenta activada' : 'Verificación pendiente' }}
+      </span>
+
+      <h2>{{ mensaje }}</h2>
+
+      <p>{{ detalle }}</p>
+
+      @if (usuario()?.email && estado !== 'verificado') {
+        <div class="email-box">
+          <span>Correo enviado a</span>
+          <strong>{{ usuario()?.email }}</strong>
+        </div>
+      }
+    </div>
+
+    @if (correoReenviado) {
+      <div class="alerta alerta-ok">
+        Correo reenviado. Si no lo ves, revisa spam o promociones.
+      </div>
+    }
+
+    @if (error) {
+      <div class="alerta alerta-error">
+        {{ error }}
+      </div>
+    }
+
+    <div class="acciones">
+
+      @if (estado !== 'verificado') {
+        <button class="btn-principal" type="button" (click)="abrirCorreo()">
+          Abrir mi correo
+        </button>
+
+        <button
+          class="btn-suave"
+          type="button"
+          [disabled]="cargandoReenvio || !puedeReenviar()"
+          (click)="reenviar()">
+
+          @if (cargandoReenvio) {
+            <span class="btn-loader">
+              Reenviando
+              <i></i><i></i><i></i>
+            </span>
+          } @else {
+            Reenviar correo
+          }
+        </button>
+      }
+
+      @if (estado === 'verificado') {
+        @if (estaAutenticado()) {
+          <a class="btn-principal enlace-btn" routerLink="/panel">
+            Ir a mi panel
+          </a>
+        } @else {
+          <a class="btn-principal enlace-btn" routerLink="/login">
+            Iniciar sesión
+          </a>
+        }
+      }
+
+      <a class="btn-linea" routerLink="/cursos">
+        Ir al inicio
+      </a>
+    </div>
+
+    @if (estado !== 'verificado') {
+      <div class="nota">
+        <strong>Consejo:</strong>
+        El correo puede tardar unos segundos. También revisa la carpeta de spam.
+      </div>
+    }
+
+  </div>
+</section>

@@ -1,0 +1,1 @@
+export const API_URL = 'http://englishnest-api.test/api';

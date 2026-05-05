@@ -1,0 +1,644 @@
+<div class="editar-wrapper">
+
+  @if (mensaje()) {
+    <div class="alerta alerta-ok">{{ mensaje() }}</div>
+  }
+
+  @if (error()) {
+    <div class="alerta alerta-error">{{ error() }}</div>
+  }
+
+  @if (cargandoCurso()) {
+    <div class="estado-cargando">
+      <div class="spinner-local"></div>
+      <p>Cargando curso...</p>
+    </div>
+  }
+
+  @if (curso()) {
+    <header class="editar-hero">
+      <div>
+        <a class="volver" routerLink="/cursos">← Volver a cursos</a>
+
+        <span class="mini-badge">
+          {{ esAdmin() ? 'Administrador' : 'Docente' }}
+        </span>
+
+        <h2>{{ curso()?.titulo }}</h2>
+
+        <p>
+          Gestiona datos, lecciones y revisión del curso. Los estudiantes seguirán viendo
+          la versión oficial hasta que se publique la edición.
+        </p>
+      </div>
+
+      <div class="estado-panel">
+        <span>Estado actual</span>
+        <strong class="badge-estado" [ngClass]="claseEstado(curso()?.estado)">
+          {{ textoEstado(curso()?.estado) }}
+        </strong>
+
+        @if (curso()?.estado_oficial) {
+          <small>Oficial: {{ textoEstado(curso()?.estado_oficial) }}</small>
+        }
+      </div>
+    </header>
+
+    @if (curso()?.tiene_edicion) {
+      <section class="edicion-box">
+        <strong>Edición segura activa</strong>
+        <p>
+          Estos cambios están guardados en borrador/revisión. El estudiante no verá esta versión
+          hasta que el administrador la apruebe y publique.
+        </p>
+      </section>
+    }
+
+    @if (curso()?.motivo_rechazo) {
+      <section class="rechazo-box">
+        <strong>Motivo de rechazo:</strong>
+        <p>{{ curso()?.motivo_rechazo }}</p>
+      </section>
+    }
+
+    <section class="main-grid">
+
+      <div class="columna-principal">
+
+        <section class="panel-card">
+          <div class="card-head">
+            <span class="card-icon">📚</span>
+            <div>
+              <h3>Lecciones del curso</h3>
+              <p>La primera lección será introducción gratuita.</p>
+            </div>
+          </div>
+
+          @if (curso()?.lecciones?.length === 0) {
+            <div class="estado-vacio">
+              <h4>Este curso todavía no tiene lecciones</h4>
+              <p>Agrega la introducción para poder enviarlo a revisión.</p>
+            </div>
+          } @else {
+            <div class="lecciones-lista">
+              @for (leccion of curso()?.lecciones; track leccion.id) {
+                <article
+                  class="leccion-card"
+                  [class.leccion-nueva]="leccion._estado_edicion === 'nueva'"
+                  [class.leccion-modificada]="leccion._estado_edicion === 'modificada'">
+
+                  <div class="orden">
+                    {{ leccion.orden }}
+                  </div>
+
+                  <div class="leccion-info">
+                    <div class="leccion-titulo">
+                      <h4>{{ leccion.titulo }}</h4>
+
+                      @if (leccion._estado_edicion && leccion._estado_edicion !== 'oficial') {
+                        <span class="badge-edicion" [ngClass]="claseEstadoLeccion(leccion)">
+                          {{ textoEstadoLeccion(leccion) }}
+                        </span>
+                      }
+
+                      @if (leccion.es_gratis) {
+                        <span class="badge-gratis">Gratis</span>
+                      }
+
+                      @if (leccion.tipo === 'introduccion') {
+                        <span class="badge-intro">Introducción</span>
+                      }
+                    </div>
+
+                    <p>{{ leccion.descripcion || 'Sin descripción corta.' }}</p>
+
+                    @if (leccion.url_video) {
+                      <a [href]="leccion.url_video" target="_blank" class="video-link">
+                        Ver video
+                      </a>
+                    }
+                  </div>
+
+                  <div class="acciones-leccion">
+                    <button class="btn-suave" type="button" (click)="editarLeccion(leccion)">
+                      Editar
+                    </button>
+
+                    @if (!esIntroduccion(leccion)) {
+                      <button
+                        class="btn-evaluacion"
+                        type="button"
+                        (click)="abrirCuestionarioLeccion(leccion)">
+                        Cuestionario
+                      </button>
+                    } @else {
+                      <span class="sin-cuestionario">Sin cuestionario</span>
+                    }
+
+                    <button
+                      class="btn-quitar"
+                      type="button"
+                      [disabled]="accionCargando() === 'quitar-' + leccion.id"
+                      (click)="abrirModalQuitar(leccion)">
+
+                      @if (accionCargando() === 'quitar-' + leccion.id) {
+                        Quitando...
+                      } @else {
+                        Quitar
+                      }
+                    </button>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="panel-card">
+          <div class="card-head">
+            <span class="card-icon">{{ modoEdicionLeccion ? '✏️' : '➕' }}</span>
+            <div>
+              <h3>{{ modoEdicionLeccion ? 'Editar lección' : 'Nueva lección' }}</h3>
+              <p>Agrega título, descripción, contenido escrito y video de YouTube.</p>
+            </div>
+          </div>
+
+          <form [formGroup]="formularioLeccion" class="form-moderno" (ngSubmit)="guardarLeccion()">
+
+            <div class="campo">
+              <label>Título de la lección</label>
+              <input type="text" formControlName="titulo" placeholder="Ej: Introducción al curso">
+            </div>
+
+            <div class="campo">
+              <label>Descripción corta</label>
+              <textarea formControlName="descripcion" placeholder="Resumen breve de la lección"></textarea>
+            </div>
+
+            <div class="campo">
+              <label>Contenido escrito</label>
+              <textarea
+                rows="6"
+                formControlName="contenido_texto"
+                placeholder="Texto de apoyo, explicación o guía de la lección">
+              </textarea>
+            </div>
+
+            <div class="campo">
+              <label>URL del video de YouTube</label>
+              <input type="text" formControlName="url_video" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+
+            <div class="grid-form">
+              <div class="campo">
+                <label>Tipo</label>
+                <select formControlName="tipo">
+                  <option value="introduccion">Introducción</option>
+                  <option value="normal">Normal</option>
+                </select>
+              </div>
+
+              <label class="check-card">
+                <input type="checkbox" formControlName="es_gratis">
+                <span>
+                  Lección gratuita
+                  <small>Visible sin inscripción</small>
+                </span>
+              </label>
+            </div>
+
+            <div class="acciones-form">
+              @if (modoEdicionLeccion) {
+                <button class="btn-suave" type="button" (click)="cancelarEdicionLeccion()">
+                  Cancelar
+                </button>
+              }
+
+              <button
+                class="btn-principal"
+                type="submit"
+                [disabled]="formularioLeccion.invalid || guardandoLeccion()">
+
+                @if (guardandoLeccion()) {
+                  <span class="btn-loader">
+                    Guardando
+                    <i></i><i></i><i></i>
+                  </span>
+                } @else {
+                  {{ modoEdicionLeccion ? 'Actualizar lección' : 'Guardar lección' }}
+                }
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <aside class="columna-lateral">
+
+        <section class="panel-card sticky-card">
+          <div class="card-head">
+            <span class="card-icon">⚙️</span>
+            <div>
+              <h3>Datos del curso</h3>
+              <p>Edita la información general.</p>
+            </div>
+          </div>
+
+          <form [formGroup]="formularioCurso" class="form-moderno" (ngSubmit)="guardarDatosCurso()">
+
+            <div class="campo">
+              <label>Título</label>
+              <input type="text" formControlName="titulo">
+            </div>
+
+            <div class="campo">
+              <label>Descripción</label>
+              <textarea formControlName="descripcion"></textarea>
+            </div>
+
+            <div class="campo">
+              <label>Área</label>
+              <select formControlName="area_id">
+                @for (area of areas(); track area.id) {
+                  <option [value]="area.id">{{ area.nombre }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="campo">
+              <label>Nivel</label>
+              <select formControlName="nivel">
+                <option value="basico">Básico</option>
+                <option value="intermedio">Intermedio</option>
+                <option value="avanzado">Avanzado</option>
+              </select>
+            </div>
+
+            <button
+              class="btn-principal full"
+              type="submit"
+              [disabled]="formularioCurso.invalid || guardandoCurso()">
+
+              @if (guardandoCurso()) {
+                <span class="btn-loader">
+                  Guardando
+                  <i></i><i></i><i></i>
+                </span>
+              } @else {
+                Guardar cambios
+              }
+            </button>
+          </form>
+        </section>
+
+        <section class="panel-card evaluacion-final-card">
+          <div class="card-head">
+            <span class="card-icon">🧪</span>
+
+            <div>
+              <h3>Evaluación final</h3>
+              <p>Configura el examen final obligatorio del curso.</p>
+            </div>
+          </div>
+
+          <div class="evaluacion-info-box">
+            <span>📌 Mínimo 6 preguntas</span>
+            <span>✅ Máximo 10 preguntas</span>
+            <span>🎯 Suma 30 puntos de la nota final</span>
+          </div>
+
+          <button class="btn-evaluacion full" type="button" (click)="abrirEvaluacionFinal()">
+            Administrar evaluación final
+          </button>
+        </section>
+
+        <section class="panel-card vista-estudiante-card">
+          <div class="card-head">
+            <span class="card-icon">👁️</span>
+
+            <div>
+              <h3>Vista del estudiante</h3>
+              <p>Previsualiza cómo verá este curso un estudiante.</p>
+            </div>
+          </div>
+
+          <button class="btn-preview" type="button" (click)="verComoEstudiante()">
+            Ver como estudiante
+          </button>
+
+          <small>
+            Se abrirá la vista publicada/oficial del curso. Los cambios en borrador no se mostrarán
+            hasta que sean aprobados y publicados.
+          </small>
+        </section>
+
+
+        <section class="panel-card">
+          <div class="card-head">
+            <span class="card-icon">🚀</span>
+            <div>
+              <h3>Revisión y publicación</h3>
+              <p>Controla el estado del curso.</p>
+            </div>
+          </div>
+
+          @if (esDocente()) {
+            <button
+              class="btn-principal full"
+              type="button"
+              [disabled]="accionCargando() === 'revision' || !curso()?.tiene_edicion || curso()?.estado === 'pendiente_revision'"
+              (click)="enviarRevision(true)">
+
+              @if (accionCargando() === 'revision') {
+                <span class="btn-loader">
+                  Enviando
+                  <i></i><i></i><i></i>
+                </span>
+              } @else {
+                Enviar revisión y solicitar publicación
+              }
+            </button>
+
+            @if (!curso()?.tiene_edicion) {
+              <p class="nota-revision">
+                Guarda alguna modificación para crear una edición pendiente.
+              </p>
+            }
+
+            @if (curso()?.estado === 'pendiente_revision') {
+              <p class="nota-revision">
+                Ya enviaste esta edición. Espera aprobación del administrador.
+              </p>
+            }
+          }
+
+          @if (esAdmin() && curso()?.tiene_edicion) {
+            <div class="separador"></div>
+
+            <button
+              class="btn-aprobar full"
+              type="button"
+              [disabled]="accionCargando() === 'aprobar'"
+              (click)="aprobarRevision()">
+
+              @if (accionCargando() === 'aprobar') {
+                <span class="btn-loader">
+                  Aprobando
+                  <i></i><i></i><i></i>
+                </span>
+              } @else {
+                Aceptar cambios y publicar
+              }
+            </button>
+
+            @if (curso()?.estado === 'pendiente_revision') {
+              <button
+                class="btn-rechazar full"
+                type="button"
+                (click)="abrirModalRechazo()">
+                Rechazar edición
+              </button>
+            }
+          }
+
+          @if (esAdmin() && !curso()?.tiene_edicion && curso()?.estado !== 'publicado') {
+            <div class="separador"></div>
+
+            <button
+              class="btn-publicar full"
+              type="button"
+              [disabled]="accionCargando() === 'publicar'"
+              (click)="publicarCurso()">
+
+              Publicar manualmente
+            </button>
+          }
+
+          @if (esAdmin() && curso()?.estado_oficial === 'publicado') {
+            <div class="separador"></div>
+
+            <button
+              class="btn-suave full"
+              type="button"
+              [disabled]="accionCargando() === 'ocultar'"
+              (click)="ocultarCurso()">
+
+              Ocultar curso oficial
+            </button>
+          }
+        </section>
+
+      </aside>
+    </section>
+  }
+
+  @if (modalQuitarAbierto) {
+    <div class="modal-fondo">
+      <div class="modal-card">
+        <div class="modal-icono peligro">🗑️</div>
+
+        <h3>Quitar lección</h3>
+
+        <p>
+          ¿Seguro que quieres quitar
+          <strong>"{{ leccionParaQuitar?.titulo }}"</strong>
+          del borrador?
+        </p>
+
+        <div class="modal-detalle">
+          <span>📌 El curso oficial no cambiará todavía.</span>
+          <span>👨‍🎓 Los estudiantes seguirán viendo la versión publicada.</span>
+          <span>🚀 El cambio recién se aplicará cuando el admin publique la edición.</span>
+        </div>
+
+        <div class="modal-acciones">
+          <button class="btn-suave" type="button" (click)="cerrarModalQuitar()">
+            Cancelar
+          </button>
+
+          <button
+            class="btn-quitar fuerte"
+            type="button"
+            [disabled]="accionCargando() === 'quitar-' + leccionParaQuitar?.id"
+            (click)="confirmarQuitarLeccion()">
+
+            @if (accionCargando() === 'quitar-' + leccionParaQuitar?.id) {
+              <span class="btn-loader">
+                Quitando
+                <i></i><i></i><i></i>
+              </span>
+            } @else {
+              Sí, quitar lección
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (modalRechazoAbierto) {
+    <div class="modal-fondo">
+      <div class="modal-card">
+        <div class="modal-icono peligro">🚫</div>
+
+        <h3>Rechazar edición</h3>
+
+        <p>
+          Escribe el motivo para que el docente pueda corregir y reenviar a revisión.
+        </p>
+
+        <textarea
+          rows="5"
+          [(ngModel)]="motivoRechazo"
+          placeholder="Ej: Falta evaluación final o la introducción está incompleta.">
+        </textarea>
+
+        <div class="modal-acciones">
+          <button class="btn-suave" type="button" (click)="cerrarModalRechazo()">
+            Cancelar
+          </button>
+
+          <button
+            class="btn-rechazar fuerte"
+            type="button"
+            [disabled]="accionCargando() === 'rechazar'"
+            (click)="rechazarRevision()">
+
+            @if (accionCargando() === 'rechazar') {
+              <span class="btn-loader">
+                Rechazando
+                <i></i><i></i><i></i>
+              </span>
+            } @else {
+              Rechazar edición
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+
+  @if (modalEvaluacionAbierto()) {
+    <div class="modal-fondo">
+      <div class="modal-card modal-evaluacion-card">
+        <div class="modal-icono evaluacion">🧪</div>
+
+        <h3>{{ textoTipoEvaluacion() }}</h3>
+        <p>{{ descripcionTipoEvaluacion() }}</p>
+
+        @if (leccionEvaluacionActual) {
+          <div class="modal-detalle">
+            <span>📚 Lección: {{ leccionEvaluacionActual.titulo }}</span>
+            <span>🔁 Cada evaluación permite 2 intentos.</span>
+            <span>📈 Si aprueba, podrá avanzar; si agota intentos, deberá repetir el curso.</span>
+          </div>
+        } @else {
+          <div class="modal-detalle">
+            <span>🎓 Esta evaluación final es requisito para el certificado.</span>
+            <span>🔁 Tiene 2 intentos. Para mejorar más, el estudiante deberá repetir el curso.</span>
+            <span>🏆 El certificado solo se habilita si aprueba el curso completo.</span>
+          </div>
+        }
+
+        @if (cargandoEvaluacion()) {
+          <div class="estado-cargando evaluacion-cargando">
+            <div class="spinner-local"></div>
+            <p>Cargando evaluación...</p>
+          </div>
+        } @else {
+          <div class="campo evaluacion-titulo-campo">
+            <label>Título</label>
+            <input
+              type="text"
+              [(ngModel)]="tituloEvaluacion"
+              placeholder="Ej: Cuestionario de la lección">
+          </div>
+
+          <div class="preguntas-editor-head">
+            <strong>Preguntas: {{ preguntasEvaluacion.length }} / {{ maximoPreguntasEvaluacion() }}</strong>
+            <button
+              class="btn-suave"
+              type="button"
+              [disabled]="preguntasEvaluacion.length >= maximoPreguntasEvaluacion()"
+              (click)="agregarPreguntaEvaluacion()">
+              Agregar pregunta
+            </button>
+          </div>
+
+          <div class="preguntas-editor-lista">
+            @for (pregunta of preguntasEvaluacion; track $index; let i = $index) {
+              <article class="pregunta-editor-card">
+                <div class="pregunta-editor-top">
+                  <strong>Pregunta {{ i + 1 }}</strong>
+
+                  <button
+                    class="btn-quitar mini"
+                    type="button"
+                    [disabled]="preguntasEvaluacion.length <= minimoPreguntasEvaluacion()"
+                    (click)="quitarPreguntaEvaluacion(i)">
+                    Quitar
+                  </button>
+                </div>
+
+                <div class="campo">
+                  <label>Texto de la pregunta</label>
+                  <textarea
+                    rows="3"
+                    [(ngModel)]="pregunta.pregunta"
+                    placeholder="Escribe la pregunta aquí">
+                  </textarea>
+                </div>
+
+                <div class="opciones-editor-lista">
+                  @for (opcion of pregunta.opciones; track $index; let j = $index) {
+                    <label class="opcion-editor-card">
+                      <input
+                        type="radio"
+                        [checked]="opcion.es_correcta"
+                        (change)="marcarOpcionCorrecta(i, j)">
+
+                      <span class="opcion-numero">{{ j + 1 }}</span>
+
+                      <input
+                        type="text"
+                        [(ngModel)]="opcion.texto"
+                        placeholder="Opción {{ j + 1 }}">
+
+                      @if (opcion.es_correcta) {
+                        <small>Correcta</small>
+                      }
+                    </label>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        }
+
+        <div class="modal-acciones">
+          <button class="btn-suave" type="button" (click)="cerrarModalEvaluacion()">
+            Cancelar
+          </button>
+
+          <button
+            class="btn-principal"
+            type="button"
+            [disabled]="cargandoEvaluacion() || guardandoEvaluacion()"
+            (click)="guardarEvaluacionActual()">
+
+            @if (guardandoEvaluacion()) {
+              <span class="btn-loader">
+                Guardando
+                <i></i><i></i><i></i>
+              </span>
+            } @else {
+              Guardar evaluación
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

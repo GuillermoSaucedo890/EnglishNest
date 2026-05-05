@@ -1,0 +1,180 @@
+/* 🌍 RESET GLOBAL */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 🎨 FONDO GENERAL */
+body {
+  font-family: Inter, Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.15), transparent 40%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  color: #0f172a;
+}
+
+/* 💎 CARDS */
+.card {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 24px;
+  padding: 28px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+}
+
+/* 🧠 TITULOS */
+.titulo {
+  font-size: 32px;
+  margin-bottom: 14px;
+  font-weight: 800;
+}
+
+.subtitulo {
+  color: #64748b;
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+
+/* 🔘 BOTONES */
+button {
+  border: none;
+  border-radius: 14px;
+  padding: 11px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  color: white;
+  transition: 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+}
+
+button:disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* 📊 ALERTAS */
+.alerta-ok {
+  background: #dcfce7;
+  color: #166534;
+  padding: 13px 15px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+}
+
+.alerta-error {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 13px 15px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+}
+
+/* 📏 SEPARADOR */
+.separador {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 24px 0;
+}
+
+/* 📚 GRID DE CURSOS */
+.grid-cursos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+/* 📦 CARD CURSO */
+.curso-card {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 22px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+  transition: 0.22s ease;
+}
+
+.curso-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.1);
+}
+
+.curso-card h3,
+.curso-card h4 {
+  margin-bottom: 10px;
+  color: #0f172a;
+}
+
+.curso-card p {
+  margin-bottom: 10px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+/* 📘 LECCIONES */
+.leccion-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+/* 📊 BARRA DE PROGRESO */
+.barra-contenedor {
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  height: 18px;
+  margin: 10px 0 18px;
+}
+
+.barra-progreso {
+  height: 18px;
+  background: linear-gradient(135deg, #22c55e, #3b82f6);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+/* 📝 FORMULARIOS */
+input,
+textarea,
+select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  background: white;
+  padding: 13px 15px;
+  border-radius: 14px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+}
+
+/* 📱 RESPONSIVE */
+@media (max-width: 768px) {
+  .card {
+    padding: 20px;
+  }
+
+  .titulo {
+    font-size: 26px;
+  }
+
+  .grid-cursos {
+    grid-template-columns: 1fr;
+  }
+}

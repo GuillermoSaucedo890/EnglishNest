@@ -1,0 +1,184 @@
+<div class="app-shell">
+  @if (mostrarOverlayGlobal()) {
+    <div class="overlay-global-cargando">
+      <div class="overlay-global-cargando__card">
+        <div class="spinner-global"></div>
+        <h3>{{ textoOverlayGlobal() }}</h3>
+      </div>
+    </div>
+  }
+
+  <header class="app-header">
+    <a class="brand" routerLink="/" (click)="cerrarMenu()">
+      <strong>EnglishNest</strong>
+      <span>Inglés profesional para tu carrera</span>
+    </a>
+
+    <nav class="app-nav">
+      @if (!estaLogueado()) {
+        <a
+          class="nav-link"
+          [class.activo]="rutaActual().startsWith('/cursos')"
+          routerLink="/cursos">
+          Cursos
+        </a>
+
+        <a
+          class="nav-link"
+          href="#quienes-somos">
+          Quiénes somos
+        </a>
+
+        <a
+          class="nav-link"
+          href="#beneficios">
+          Beneficios
+        </a>
+      }
+
+      @if (estaLogueado() && esAdmin()) {
+        <a
+          class="nav-link"
+          [class.activo]="rutaActual().startsWith('/panel')"
+          routerLink="/panel"
+          (click)="cerrarMenu()">
+          Panel
+        </a>
+
+        <a
+          class="nav-link"
+          [class.activo]="rutaActual().startsWith('/cursos') || rutaActual().startsWith('/editar-curso') || rutaActual().startsWith('/curso/')"
+          routerLink="/cursos"
+          (click)="cerrarMenu()">
+          Cursos
+        </a>
+
+        <a
+          class="nav-link"
+          [class.activo]="rutaActual().startsWith('/admin-docentes')"
+          routerLink="/admin-docentes"
+          (click)="cerrarMenu()">
+          Docentes
+        </a>
+      }
+
+      @if (estaLogueado() && esDocente()) {
+        <a
+          class="nav-link"
+          [class.activo]="rutaActual().startsWith('/panel')"
+          routerLink="/panel"
+          (click)="cerrarMenu()">
+          Panel
+        </a>
+
+        <a
+          class="nav-link"
+          [class.activo]="docenteMisCursosActivo()"
+          [routerLink]="['/cursos']"
+          [queryParams]="{ vista: 'mis-cursos' }"
+          (click)="cerrarMenu()">
+          Mis cursos
+        </a>
+
+        <a
+          class="nav-link"
+          [class.activo]="docenteCatalogoActivo()"
+          [routerLink]="['/cursos']"
+          [queryParams]="{ vista: 'catalogo' }"
+          (click)="cerrarMenu()">
+          Catálogo
+        </a>
+      }
+
+      @if (estaLogueado() && esEstudiante()) {
+        <a
+          class="nav-link"
+          [class.activo]="rutaActual().startsWith('/cursos') && !rutaActual().startsWith('/curso/')"
+          routerLink="/cursos"
+          (click)="cerrarMenu()">
+          Cursos
+        </a>
+
+        <a
+          class="nav-link"
+          [class.activo]="rutaActual().startsWith('/panel')"
+          routerLink="/panel"
+          (click)="cerrarMenu()">
+          Mis cursos
+        </a>
+
+        <a
+          class="nav-link"
+          [class.activo]="rutaActual().startsWith('/ia')"
+          routerLink="/ia"
+          (click)="cerrarMenu()">
+          Tutor IA
+        </a>
+      }
+    </nav>
+
+    <div class="app-actions">
+      @if (!estaLogueado()) {
+        <a class="btn-acceso" routerLink="/login">
+          Acceso
+        </a>
+      }
+
+      @if (estaLogueado()) {
+        <button type="button" class="avatar-btn" (click)="abrirCerrarMenu()">
+          {{ inicialesUsuario() }}
+        </button>
+
+        @if (menuAbierto()) {
+          <div class="menu-usuario">
+            <div class="menu-identidad">
+              <strong>{{ nombreUsuario() }}</strong>
+              <span>{{ correoUsuario() }}</span>
+            </div>
+
+            <div class="menu-datos">
+              <p><strong>Rol:</strong> {{ rolActual() }}</p>
+              <p><strong>Correo:</strong> {{ correoVerificadoTexto() }}</p>
+
+              @if (esEstudiante()) {
+                <p><strong>Plan:</strong> {{ planTexto() }}</p>
+              }
+
+              @if (esDocente()) {
+                <p><strong>Docente:</strong> {{ docenteEstadoTexto() }}</p>
+              }
+            </div>
+
+            <button type="button" class="menu-link" (click)="irPanel()">
+              Ir a mi panel
+            </button>
+
+            @if (esDocente()) {
+              <button type="button" class="menu-link" (click)="irMisCursosDocente()">
+                Mis cursos
+              </button>
+
+              <button type="button" class="menu-link" (click)="irCatalogoDocente()">
+                Catálogo
+              </button>
+            }
+
+            @if (esAdmin()) {
+              <button type="button" class="menu-link" routerLink="/admin-docentes" (click)="cerrarMenu()">
+                Revisar docentes
+              </button>
+            }
+
+            <button type="button" class="menu-salir" (click)="cerrarSesion()">
+              Cerrar sesión
+            </button>
+          </div>
+        }
+      }
+    </div>
+  </header>
+
+  <main class="app-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

@@ -1,0 +1,15 @@
+# Laravel
+/englishnest-api/vendor
+/englishnest-api/node_modules
+/englishnest-api/.env
+/englishnest-api/storage/*.key
+
+# Angular
+/englishnest-front/node_modules
+/englishnest-front/dist
+/englishnest-front/.angular
+
+# General
+.env
+.DS_Store
+Thumbs.db

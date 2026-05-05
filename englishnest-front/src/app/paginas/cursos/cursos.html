@@ -1,0 +1,400 @@
+<div class="cursos-wrapper">
+
+  @if (mensaje()) {
+    <div class="alerta alerta-ok">
+      {{ mensaje() }}
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alerta alerta-error">
+      {{ error() }}
+    </div>
+  }
+
+  @if (cargando()) {
+    <section class="estado-cargando">
+      <div class="spinner-local"></div>
+      <p>Cargando cursos...</p>
+    </section>
+  }
+
+  @if (!cargando() && esAdmin()) {
+    <section class="hero-admin">
+      <span class="mini-badge">Administración</span>
+      <h2>Gestión global de cursos</h2>
+      <p>Revisa cursos, estados oficiales y ediciones pendientes de docentes.</p>
+    </section>
+
+    <section class="panel-card">
+      <div class="admin-head">
+        <div>
+          <h3>Todos los cursos</h3>
+          <p>{{ cursosAdminFiltrados().length }} cursos mostrados de {{ cursos().length }} registrados.</p>
+        </div>
+      </div>
+
+      <div class="admin-filtros">
+        <button type="button" [class.activo]="filtroAdmin() === 'todos'" (click)="filtroAdmin.set('todos')">
+          Todos <span>{{ cantidadFiltroAdmin('todos') }}</span>
+        </button>
+
+        <button type="button" class="filtro-alerta" [class.activo]="filtroAdmin() === 'revision'" (click)="filtroAdmin.set('revision')">
+          Revisión <span>{{ cantidadFiltroAdmin('revision') }}</span>
+        </button>
+
+        <button type="button" [class.activo]="filtroAdmin() === 'borrador'" (click)="filtroAdmin.set('borrador')">
+          Modificados <span>{{ cantidadFiltroAdmin('borrador') }}</span>
+        </button>
+
+        <button type="button" [class.activo]="filtroAdmin() === 'rechazado'" (click)="filtroAdmin.set('rechazado')">
+          Rechazados <span>{{ cantidadFiltroAdmin('rechazado') }}</span>
+        </button>
+
+        <button type="button" [class.activo]="filtroAdmin() === 'sin_edicion'" (click)="filtroAdmin.set('sin_edicion')">
+          Sin edición <span>{{ cantidadFiltroAdmin('sin_edicion') }}</span>
+        </button>
+
+        <button type="button" [class.activo]="filtroAdmin() === 'publicado'" (click)="filtroAdmin.set('publicado')">
+          Publicados <span>{{ cantidadFiltroAdmin('publicado') }}</span>
+        </button>
+
+        <button type="button" [class.activo]="filtroAdmin() === 'oculto'" (click)="filtroAdmin.set('oculto')">
+          Ocultos <span>{{ cantidadFiltroAdmin('oculto') }}</span>
+        </button>
+      </div>
+
+      @if (cursosAdminFiltrados().length > 0) {
+        <div class="tabla-wrap">
+          <table class="tabla-admin">
+            <thead>
+              <tr>
+                <th>Curso</th>
+                <th>Docente</th>
+                <th>Área</th>
+                <th>Estado oficial</th>
+                <th>Estado actual</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (curso of cursosAdminFiltrados(); track curso.id) {
+                <tr [class.fila-revision]="tieneSolicitudRevision(curso)">
+                  <td>
+                    <strong>{{ curso.titulo }}</strong>
+                    <span>{{ curso.descripcion }}</span>
+                  </td>
+
+                  <td>{{ nombreDocente(curso) }}</td>
+                  <td>{{ textoArea(curso) }}</td>
+
+                  <td>
+                    <span class="badge" [ngClass]="claseEstadoOficial(curso)">
+                      {{ textoEstadoOficial(curso) }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span class="badge" [ngClass]="claseEstadoActual(curso)">
+                      {{ textoEstadoActual(curso) }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <div class="acciones-tabla">
+                      <a class="btn-suave" [routerLink]="['/editar-curso', curso.id]">
+                        @if (tieneSolicitudRevision(curso)) {
+                          Revisar
+                        } @else {
+                          Editar
+                        }
+                      </a>
+
+                      @if (estadoOficial(curso) === 'publicado') {
+                        <button type="button" class="btn-gris" [disabled]="accionCargando() === 'ocultar-' + curso.id" (click)="ocultarCurso(curso)">
+                          @if (accionCargando() === 'ocultar-' + curso.id) {
+                            Ocultando...
+                          } @else {
+                            Ocultar
+                          }
+                        </button>
+                      } @else {
+                        <button type="button" class="btn-publicar" [disabled]="accionCargando() === 'publicar-' + curso.id" (click)="publicarCurso(curso)">
+                          @if (accionCargando() === 'publicar-' + curso.id) {
+                            Publicando...
+                          } @else {
+                            Publicar
+                          }
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="estado-vacio">
+          No hay cursos para este filtro.
+        </div>
+      }
+    </section>
+  }
+
+  @if (!cargando() && esDocente()) {
+    <section class="hero-catalogo">
+      <span class="mini-badge">Docente</span>
+      <h2>Panel de cursos</h2>
+      <p>Gestiona tus cursos asignados o revisa el catálogo publicado.</p>
+    </section>
+
+    <section class="panel-card">
+      <div class="docente-tabs">
+        <button
+          type="button"
+          [class.activo]="vistaDocente() === 'mis-cursos'"
+          (click)="cambiarVistaDocente('mis-cursos')">
+          Mis cursos
+        </button>
+
+        <button
+          type="button"
+          [class.activo]="vistaDocente() === 'catalogo'"
+          (click)="cambiarVistaDocente('catalogo')">
+          Catálogo
+        </button>
+      </div>
+
+      @if (vistaDocente() === 'mis-cursos') {
+        <div class="section-head">
+          <div>
+            <h3>Mis cursos</h3>
+            <p>Solo aparecen los cursos que el administrador te asignó.</p>
+          </div>
+        </div>
+
+        @if (cursos().length > 0) {
+          <div class="cards-grid">
+            @for (curso of cursos(); track curso.id) {
+              <article class="curso-card">
+                <div class="card-top">
+                  <span class="icono-card">📚</span>
+
+                  <div class="badges-card">
+                    <span class="mi-curso-chip">Mi curso</span>
+                    <span class="nivel-chip">{{ textoNivel(curso) }}</span>
+                  </div>
+                </div>
+
+                <h3>{{ curso.titulo }}</h3>
+                <p>{{ curso.descripcion }}</p>
+
+                <div class="chips">
+                  <span>{{ textoArea(curso) }}</span>
+                  <span class="badge" [ngClass]="claseEstadoActual(curso)">
+                    {{ textoEstadoActual(curso) }}
+                  </span>
+                </div>
+
+                <a class="btn-principal full" [routerLink]="['/editar-curso', curso.id]">
+                  Gestionar curso
+                </a>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="estado-vacio">
+            Todavía no tienes cursos asignados.
+          </div>
+        }
+      }
+
+      @if (vistaDocente() === 'catalogo') {
+        <div class="section-head">
+          <div>
+            <h3>Catálogo publicado</h3>
+            <p>Aquí ves todos los cursos publicados. Tus cursos aparecerán marcados en verde.</p>
+          </div>
+        </div>
+
+        <section class="filtros-catalogo filtros-docente">
+          <div class="buscador">
+            <span>🔎</span>
+            <input
+              type="text"
+              [ngModel]="busqueda()"
+              (ngModelChange)="busqueda.set($event)"
+              placeholder="Buscar por curso, área o docente...">
+          </div>
+
+          <div class="categorias">
+            <button type="button" [class.activo]="filtroCategoria() === 'todos'" (click)="filtroCategoria.set('todos')">
+              Todos
+            </button>
+
+            @for (categoria of categoriasDisponibles(); track categoria) {
+              <button type="button" [class.activo]="filtroCategoria() === categoria" (click)="filtroCategoria.set(categoria)">
+                {{ categoria }}
+              </button>
+            }
+          </div>
+        </section>
+
+        @if (cursosCatalogoFiltrados().length > 0) {
+          <div class="cards-grid">
+            @for (curso of cursosCatalogoFiltrados(); track curso.id) {
+              <article class="curso-card" [class.curso-card-propio]="esMiCursoDocente(curso)">
+                <div class="card-top">
+                  <span class="icono-card">⭐</span>
+
+                  <div class="badges-card">
+                    @if (esMiCursoDocente(curso)) {
+                      <span class="mi-curso-chip">Mi curso</span>
+                    }
+
+                    <span class="nivel-chip">{{ textoNivel(curso) }}</span>
+                  </div>
+                </div>
+
+                <h3>{{ curso.titulo }}</h3>
+                <p>{{ curso.descripcion }}</p>
+
+                <div class="chips">
+                  <span>{{ textoArea(curso) }}</span>
+                  <span>{{ nombreDocente(curso) }}</span>
+                </div>
+
+                @if (esMiCursoDocente(curso)) {
+                  <a class="btn-principal full" [routerLink]="['/editar-curso', curso.id]">
+                    Gestionar mi curso
+                  </a>
+                } @else {
+                  <a class="btn-principal full" [routerLink]="['/curso', curso.id]">
+                    Ver curso
+                  </a>
+                }
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="estado-vacio">
+            No hay cursos publicados para este filtro.
+          </div>
+        }
+      }
+    </section>
+  }
+
+  @if (!cargando() && !esAdmin() && !esDocente()) {
+    <section class="hero-catalogo">
+      <span class="mini-badge">Catálogo</span>
+      <h2>Continúa aprendiendo con cursos profesionales</h2>
+      <p>Entra al curso, mira la introducción gratis y continúa según tu plan.</p>
+    </section>
+
+    <section class="panel-card filtros-catalogo">
+      <div class="buscador">
+        <span>🔎</span>
+        <input
+          type="text"
+          [ngModel]="busqueda()"
+          (ngModelChange)="busqueda.set($event)"
+          placeholder="Buscar por curso, área o docente...">
+      </div>
+
+      <div class="categorias">
+        <button type="button" [class.activo]="filtroCategoria() === 'todos'" (click)="filtroCategoria.set('todos')">
+          Todos
+        </button>
+
+        @for (categoria of categoriasDisponibles(); track categoria) {
+          <button type="button" [class.activo]="filtroCategoria() === categoria" (click)="filtroCategoria.set(categoria)">
+            {{ categoria }}
+          </button>
+        }
+      </div>
+    </section>
+
+    <section>
+      <span class="mini-badge">Recomendado</span>
+      <h3 class="titulo-seccion">Cursos recomendados para ti</h3>
+
+      <div class="cards-grid">
+        @for (curso of cursosRecomendados(); track curso.id) {
+          <article class="curso-card">
+            <div class="card-top">
+              <span class="icono-card">⭐</span>
+
+              <div class="badges-card">
+                @if (estaSuscrito(curso)) {
+                  <span class="suscrito-chip">Suscrito</span>
+                }
+
+                <span class="nivel-chip">{{ textoNivel(curso) }}</span>
+              </div>
+            </div>
+
+            <h3>{{ curso.titulo }}</h3>
+            <p>{{ curso.descripcion }}</p>
+
+            <div class="chips">
+              <span>{{ textoArea(curso) }}</span>
+              <span>{{ nombreDocente(curso) }}</span>
+            </div>
+
+            <a class="btn-principal full" [routerLink]="['/curso', curso.id]">
+              @if (estaSuscrito(curso)) {
+                Continuar curso
+              } @else {
+                Ver curso
+              }
+            </a>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section>
+      <span class="mini-badge">Cursos</span>
+      <h3 class="titulo-seccion">Todos los cursos disponibles</h3>
+      <p class="subtitulo-seccion">Los cursos suscritos aparecerán marcados y también estarán en Mis cursos.</p>
+
+      <div class="cards-grid">
+        @for (curso of cursosCatalogoFiltrados(); track curso.id) {
+          <article class="curso-card">
+            <div class="card-top">
+              <span class="icono-card">📚</span>
+
+              <div class="badges-card">
+                @if (estaSuscrito(curso)) {
+                  <span class="suscrito-chip">Suscrito</span>
+                }
+
+                <span class="nivel-chip">{{ textoNivel(curso) }}</span>
+              </div>
+            </div>
+
+            <h3>{{ curso.titulo }}</h3>
+            <p>{{ curso.descripcion }}</p>
+
+            <div class="chips">
+              <span>{{ textoArea(curso) }}</span>
+              <span>{{ nombreDocente(curso) }}</span>
+            </div>
+
+            <a class="btn-principal full" [routerLink]="['/curso', curso.id]">
+              @if (estaSuscrito(curso)) {
+                Continuar curso
+              } @else {
+                Ver curso
+              }
+            </a>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+</div>

@@ -1,0 +1,487 @@
+<div class="panel-wrapper">
+
+  @if (mensaje()) {
+    <div class="alerta alerta-ok">
+      {{ mensaje() }}
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alerta alerta-error">
+      {{ error() }}
+    </div>
+  }
+
+  @if (cargando()) {
+    <section class="estado-cargando">
+      <div class="spinner-local"></div>
+      <p>Cargando panel...</p>
+    </section>
+  }
+
+  @if (!cargando() && esAdmin()) {
+    <section class="encabezado-rol admin-hero">
+      <div>
+        <span class="mini-badge">Administrador</span>
+        <h2>Panel de administración</h2>
+        <p>Crea cursos, asigna docentes aprobados y revisa solicitudes pendientes.</p>
+      </div>
+    </section>
+
+    <section class="admin-grid">
+
+      <article class="panel-card">
+        <div class="card-head">
+          <span class="card-icon">🛠️</span>
+
+          <div>
+            <h3>Crear nuevo curso</h3>
+            <p>Crea un curso y asígnalo a un docente habilitado.</p>
+          </div>
+        </div>
+
+        <form class="form-panel" [formGroup]="formularioCurso" (ngSubmit)="crearCurso()">
+          <label>
+            Título del curso
+            <input type="text" formControlName="titulo" placeholder="Ej: Inglés desde cero">
+          </label>
+
+          <label>
+            Descripción
+            <textarea rows="5" formControlName="descripcion" placeholder="¿De qué trata el curso?"></textarea>
+          </label>
+
+          <label>
+            Área
+            <select formControlName="area_id">
+              <option value="">Selecciona un área</option>
+
+              @for (area of areas(); track area.id) {
+                <option [value]="area.id">
+                  {{ area.nombre }}
+                </option>
+              }
+            </select>
+          </label>
+
+          <label>
+            Nivel
+            <select formControlName="nivel">
+              <option value="basico">Básico</option>
+              <option value="intermedio">Intermedio</option>
+              <option value="avanzado">Avanzado</option>
+            </select>
+          </label>
+
+          <label>
+            Asignar docente titular
+            <select formControlName="docente_id">
+              <option value="">Selecciona un docente aprobado</option>
+
+              @for (docente of docentes(); track usuarioIdDocente(docente)) {
+                <option [value]="usuarioIdDocente(docente)">
+                  {{ nombreDocente(docente) }} - {{ especialidadDocente(docente) }}
+                </option>
+              }
+            </select>
+          </label>
+
+          <button
+            class="btn-principal full"
+            type="submit"
+            [disabled]="accionCargando() === 'crear-curso'">
+
+            @if (accionCargando() === 'crear-curso') {
+              Creando curso...
+            } @else {
+              Crear curso y asignar
+            }
+          </button>
+        </form>
+      </article>
+
+      <article class="panel-card">
+        <div class="card-head">
+          <span class="card-icon">🔔</span>
+
+          <div>
+            <h3>Solicitudes de docentes</h3>
+            <p>Revisa solicitudes iniciales y cambios de perfil pendientes.</p>
+          </div>
+
+          <span class="contador">
+            {{ docentesPendientes().length }}
+          </span>
+        </div>
+
+        @if (docentesPendientes().length > 0) {
+          <div class="lista-solicitudes">
+            @for (docente of docentesPendientes(); track usuarioIdDocente(docente)) {
+              <div class="solicitud-card">
+                <div>
+                  <strong>{{ nombreDocente(docente) }}</strong>
+                  <span>{{ correoDocente(docente) }}</span>
+                  <small>{{ textoTipoRevisionDocente(docente) }} · {{ especialidadDocente(docente) }}</small>
+                </div>
+
+                <button class="btn-principal" type="button" (click)="abrirModalDocente(docente)">
+                  Revisar docente
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="estado-vacio">
+            No hay solicitudes pendientes por revisar.
+          </div>
+        }
+      </article>
+
+    </section>
+  }
+
+  @if (!cargando() && esDocente()) {
+    <section class="encabezado-rol docente-hero">
+      <div>
+        <span class="mini-badge">Docente</span>
+        <h2>Mi perfil docente</h2>
+        <p>
+          Mantén actualizada tu información profesional. Si ya estás aprobado,
+          tus nuevos cambios se enviarán a revisión antes de hacerse públicos.
+        </p>
+      </div>
+
+      <div class="estado-docente-card">
+        <span>Estado actual</span>
+        <strong [ngClass]="claseEstadoPerfilDocente()">
+          {{ textoEstadoPerfilDocente() }}
+        </strong>
+      </div>
+    </section>
+
+    @if (perfilDocenteRechazado()) {
+      <section class="rechazo-docente-box">
+        <strong>Tu solicitud fue rechazada</strong>
+        <p>{{ motivoRechazoDocente() || 'El administrador no especificó un motivo.' }}</p>
+      </section>
+    }
+
+    @if (perfilDocentePendiente()) {
+      <section class="pendiente-docente-box">
+        <strong>Solicitud pendiente</strong>
+        <p>
+          Tu perfil está esperando revisión del administrador. Puedes editarlo si necesitas corregir algo.
+        </p>
+      </section>
+    }
+
+    @if (perfilDocenteAprobado()) {
+      <section class="aprobado-docente-box">
+        <strong>Perfil aprobado</strong>
+        <p>
+          Tu perfil oficial está activo. Si modificas estudios, especialidad o biografía,
+          los cambios se enviarán a revisión.
+        </p>
+
+        <a routerLink="/cursos" class="btn-principal enlace-btn">
+          Ir a mis cursos
+        </a>
+      </section>
+    }
+
+    @if (perfilDocenteAprobado() && tieneCambiosPendientesPerfilDocente()) {
+      <section class="pendiente-docente-box">
+        <strong>Cambios enviados a revisión</strong>
+        <p>
+          Tu perfil oficial sigue activo. Los nuevos cambios aparecerán cuando el administrador los apruebe.
+        </p>
+      </section>
+    }
+
+    @if (perfilDocenteAprobado() && tieneCambiosRechazadosPerfilDocente()) {
+      <section class="rechazo-docente-box">
+        <strong>Tus cambios fueron rechazados</strong>
+        <p>{{ motivoRechazoCambiosDocente() || 'El administrador no especificó un motivo.' }}</p>
+      </section>
+    }
+
+    <section class="panel-card docente-panel">
+      <div class="card-head">
+        <span class="card-icon">👨‍🏫</span>
+
+        <div>
+          <h3>Información profesional</h3>
+
+          @if (perfilDocenteAprobado()) {
+            <p>Estos cambios no se aplicarán directamente. Primero serán revisados por el administrador.</p>
+          } @else {
+            <p>Estos datos serán revisados por el administrador.</p>
+          }
+        </div>
+      </div>
+
+      <div class="docente-info-grid">
+        <div>
+          <span>Correo</span>
+          <strong>{{ perfilDocenteCorreo() }}</strong>
+        </div>
+
+        <div>
+          <span>Correo verificado</span>
+          <strong>{{ perfilDocenteCorreoVerificado() ? 'Sí' : 'No' }}</strong>
+        </div>
+      </div>
+
+      <form class="form-panel" [formGroup]="formularioPerfilDocente" (ngSubmit)="guardarPerfilDocente()">
+        <label>
+          Especialidad
+          <input
+            type="text"
+            formControlName="especialidad"
+            placeholder="Ej: Inglés conversacional, TOEFL, negocios, tecnología">
+        </label>
+
+        <label>
+          Estudios
+          <textarea
+            rows="5"
+            formControlName="estudios"
+            placeholder="Ej: Licenciatura, certificaciones, cursos, experiencia académica">
+          </textarea>
+        </label>
+
+        <label>
+          Biografía profesional
+          <textarea
+            rows="7"
+            formControlName="biografia"
+            placeholder="Describe tu experiencia, metodología, años de enseñanza y enfoque como docente">
+          </textarea>
+        </label>
+
+        <div class="acciones-docente">
+          <button
+            class="btn-suave"
+            type="submit"
+            [disabled]="accionCargando() === 'guardar-perfil-docente'">
+
+            @if (accionCargando() === 'guardar-perfil-docente') {
+              Guardando...
+            } @else {
+              {{ textoBotonGuardarPerfilDocente() }}
+            }
+          </button>
+
+          @if (puedeReenviarSolicitudDocente()) {
+            <button
+              class="btn-principal"
+              type="button"
+              [disabled]="accionCargando() === 'reenviar-solicitud-docente'"
+              (click)="reenviarSolicitudDocente()">
+
+              @if (accionCargando() === 'reenviar-solicitud-docente') {
+                Reenviando...
+              } @else {
+                Volver a solicitar aprobación
+              }
+            </button>
+          }
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (!cargando() && esEstudiante()) {
+    <section class="encabezado-rol estudiante-hero">
+      <div>
+        <span class="mini-badge">Estudiante</span>
+        <h2>Mi aprendizaje</h2>
+        <p>Bienvenido, <strong>{{ nombreUsuario() }}</strong>.</p>
+      </div>
+    </section>
+
+    <section class="panel-card">
+      <div class="card-head">
+        <span class="card-icon">🎓</span>
+
+        <div>
+          <h3>Mis cursos suscritos</h3>
+          <p>Aquí solo aparecen los cursos donde tienes una inscripción activa.</p>
+        </div>
+      </div>
+
+      @if (inscripciones().length > 0) {
+        <div class="cursos-grid">
+          @for (inscripcion of inscripciones(); track inscripcion.id) {
+            <article class="curso-card">
+              <span class="curso-icono">📚</span>
+
+              <h3>{{ tituloCurso(inscripcion) }}</h3>
+
+              <div class="barra-fondo">
+                <div class="barra-llena" [style.width.%]="progreso(inscripcion)"></div>
+              </div>
+
+              <p class="progreso-texto">{{ progreso(inscripcion) }}% completado</p>
+
+              <span class="badge-estado">Activa</span>
+
+              <button class="btn-principal full" [routerLink]="['/curso', cursoId(inscripcion)]">
+                Continuar
+              </button>
+
+              <button
+                class="btn-suave full"
+                [disabled]="accionCargando() === 'cancelar-' + cursoId(inscripcion)"
+                (click)="cancelarInscripcion(inscripcion)">
+
+                @if (accionCargando() === 'cancelar-' + cursoId(inscripcion)) {
+                  Desuscribiendo...
+                } @else {
+                  Desuscribirme
+                }
+              </button>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="estado-vacio">
+          <h3>No tienes cursos suscritos activos</h3>
+          <p>Puedes explorar el catálogo, ver introducciones gratis y suscribirte desde cada curso.</p>
+
+          <a routerLink="/cursos" class="btn-principal enlace-btn">
+            Ver cursos
+          </a>
+        </div>
+      }
+    </section>
+  }
+
+  @if (modalDocenteAbierto()) {
+    <div class="modal-fondo">
+      <div class="modal-card docente-modal">
+        <div class="modal-icono">👨‍🏫</div>
+
+        <span class="mini-badge">
+          {{ textoTipoRevisionDocente(docenteSeleccionado()) }}
+        </span>
+
+        <h3>Revisar docente</h3>
+
+        @if (cargandoDetalleDocente()) {
+          <p>Cargando información del docente...</p>
+        } @else {
+          <div class="docente-resumen">
+            <div>
+              <span>Nombre</span>
+              <strong>{{ nombreDocente(docenteSeleccionado()) }}</strong>
+            </div>
+
+            <div>
+              <span>Correo</span>
+              <strong>{{ correoDocente(docenteSeleccionado()) }}</strong>
+            </div>
+
+            <div>
+              <span>Correo verificado</span>
+              <strong>{{ correoVerificadoDocente(docenteSeleccionado()) ? 'Sí' : 'No' }}</strong>
+            </div>
+
+            <div>
+              <span>Estado</span>
+              <strong>{{ textoEstadoDocente(docenteSeleccionado()) }}</strong>
+            </div>
+          </div>
+
+          <div class="docente-detalle">
+            <section>
+              <h4>Especialidad actual</h4>
+              <p>{{ especialidadDocente(docenteSeleccionado()) }}</p>
+            </section>
+
+            <section>
+              <h4>Estudios actuales</h4>
+              <p>{{ estudiosDocente(docenteSeleccionado()) }}</p>
+            </section>
+
+            <section>
+              <h4>Biografía actual</h4>
+              <p>{{ biografiaDocente(docenteSeleccionado()) }}</p>
+            </section>
+          </div>
+
+          @if (docenteTieneCambiosPerfil(docenteSeleccionado())) {
+            <div class="comparacion-cambios">
+              <h4>Cambios solicitados</h4>
+
+              <section>
+                <span>Nueva especialidad</span>
+                <strong>{{ cambioDocente(docenteSeleccionado(), 'especialidad') }}</strong>
+              </section>
+
+              <section>
+                <span>Nuevos estudios</span>
+                <strong>{{ cambioDocente(docenteSeleccionado(), 'estudios') }}</strong>
+              </section>
+
+              <section>
+                <span>Nueva biografía</span>
+                <strong>{{ cambioDocente(docenteSeleccionado(), 'biografia') }}</strong>
+              </section>
+            </div>
+          }
+
+          <div class="campo-rechazo">
+            <label>Motivo de rechazo</label>
+            <textarea
+              rows="4"
+              [(ngModel)]="motivoRechazo"
+              placeholder="Ej: Faltan estudios, la biografía está incompleta o debe aclarar su experiencia.">
+            </textarea>
+          </div>
+
+          <div class="modal-acciones">
+            <button class="btn-suave" type="button" (click)="cerrarModalDocente()">
+              Cerrar
+            </button>
+
+            <button
+              class="btn-rechazar"
+              type="button"
+              [disabled]="accionCargando() === 'rechazar-docente-' + usuarioIdDocente(docenteSeleccionado())"
+              (click)="rechazarDocenteDesdeModal()">
+
+              @if (accionCargando() === 'rechazar-docente-' + usuarioIdDocente(docenteSeleccionado())) {
+                Rechazando...
+              } @else {
+                @if (docenteTieneCambiosPerfil(docenteSeleccionado())) {
+                  Rechazar cambios y enviar correo
+                } @else {
+                  Rechazar y enviar correo
+                }
+              }
+            </button>
+
+            <button
+              class="btn-principal"
+              type="button"
+              [disabled]="accionCargando() === 'aprobar-docente-' + usuarioIdDocente(docenteSeleccionado())"
+              (click)="aprobarDocenteDesdeModal()">
+
+              @if (accionCargando() === 'aprobar-docente-' + usuarioIdDocente(docenteSeleccionado())) {
+                Aprobando...
+              } @else {
+                @if (docenteTieneCambiosPerfil(docenteSeleccionado())) {
+                  Aprobar cambios
+                } @else {
+                  Aprobar docente
+                }
+              }
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+</div>
